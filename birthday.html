@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<!-- Hace que se vea como app en iPhone y Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+
+<!-- Íconos (asegúrate de tener estas imágenes) -->
+<link rel="icon" href="favicon.png" />
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Belated Birthday</title>
+<style>
+/* --- Layout --- */
+html,body{margin:0;padding:0;width:100vw;height:100vh;background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif}
+.container{position:relative;inset:0;width:100%;height:100%;overflow:hidden}
+
+/* --- HEARTS (caída + escala + rotación + color) --- */
+.heart{position:absolute;z-index:2;filter:blur(1px);
+  animation:heart-move 9s linear forwards,color-transition 9s linear infinite}
+.heart svg{width:100%;height:100%}
+@keyframes heart-move{
+  0%   {transform:translateY(-60px) scale(.2) rotate(0deg)}
+  50%  {transform:translateY(50vh) scale(1) rotate(180deg)}
+  100% {transform:translateY(110vh) scale(.5) rotate(360deg)}
+}
+@keyframes color-transition{
+  0%{filter:drop-shadow(0 0 8px #ff00ff);color:#ff00ff}
+  25%{filter:drop-shadow(0 0 8px #00ffff);color:#00ffff}
+  50%{filter:drop-shadow(0 0 8px #ffffff);color:#ffffff}
+  75%{filter:drop-shadow(0 0 8px #0088ff);color:#0088ff}
+  100%{filter:drop-shadow(0 0 8px #ffff00);color:#ffff00}
+}
+/* pulso para los corazones “especiales” */
+@keyframes pulse{
+  0%,100%{transform:scale(.6)}
+  50%    {transform:scale(1)}
+}
+
+/* --- Rain --- */
+.layer{position:absolute;inset:0;pointer-events:none}
+.drop{position:absolute;width:1px;height:15px;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,.6));opacity:.3;
+      animation:rain-fall linear infinite}
+@keyframes rain-fall{0%{transform:translateY(-100px)}100%{transform:translateY(100vh)}}
+
+/* --- Stars --- */
+.star{position:absolute;background:#fff;border-radius:50%;filter:blur(1px);animation:twinkle ease-in-out infinite;z-index:0}
+.star.elongated{border-radius:30%;transform:rotate(45deg)}
+@keyframes twinkle{0%,100%{opacity:.2;filter:blur(1px)}50%{opacity:.8;filter:blur(.5px)}}
+
+/* --- Fireworks --- */
+.firework{position:absolute;z-index:3}
+.firework-trail{position:absolute;width:2px;background:linear-gradient(to top,rgba(255,255,255,0),rgba(255,255,255,.8));
+                animation:launch 1s ease-out forwards}
+@keyframes launch{0%{height:0;bottom:0;opacity:.8}80%{height:var(--h);bottom:0}100%{height:var(--h);bottom:0;opacity:0}}
+.firework-particle{position:absolute;width:5px;height:5px;border-radius:50%;transform:translate(-50%,-50%);
+                   animation:explode 1.5s ease-out forwards}
+@keyframes explode{0%{width:4px;height:4px;opacity:1;transform:translate(0,0)}
+                   100%{width:0;height:0;opacity:0;transform:translate(var(--tx),var(--ty))}}
+
+/* --- Glow background --- */
+.glow{position:absolute;inset:0;background:radial-gradient(circle at center,rgba(50,0,80,.2),rgba(0,0,0,0));z-index:0}
+
+/* --- Floating text + sparks --- */
+.floating-text {
+  position: absolute;
+  font-weight: bold;
+  font-size: 25px; /* ← Aquí ajustas el tamaño */
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
+  animation: float-text 2s ease-out forwards, color-cycle 2s linear infinite;
+  text-shadow: 0 0 6px #ff69b4, 0 0 12px #00ffff;
+}
+@keyframes float-text{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
+@keyframes color-cycle{
+  0%{color:#ff00ff}25%{color:#00ffff}50%{color:#ffffff}75%{color:#0088ff}100%{color:#ffff00}}
+.spark{position:absolute;width:4px;height:4px;border-radius:50%;pointer-events:none;
+       animation:spark-move 1s ease-out forwards}
+@keyframes spark-move{0%{opacity:1;transform:translate(0,0)scale(1)}
+                      100%{opacity:0;transform:translate(var(--sx),var(--sy))scale(.2)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="glow"></div>
+  <div class="layer" id="rain"></div>
+  <div class="layer" id="stars"></div>
+  <div class="layer" id="hearts"></div>
+  <div class="layer" id="fireworks"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+/* Rain */
+for(let i=0;i<160;i++){
+  const d=document.createElement('div');
+  d.className='drop';
+  d.style.left=Math.random()*100+'vw';
+  d.style.animationDuration=(.5+Math.random())+'s';
+  d.style.animationDelay=(Math.random()*2)+'s';
+  $('rain').appendChild(d);
+}
+
+/* Stars */
+for(let i=0;i<100;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  if(Math.random()>.6)s.classList.add('elongated');
+  s.style.width=(1+Math.random()*5)+'px';
+  s.style.height=(1+Math.random()*2)+'px';
+  s.style.left=Math.random()*100+'vw';
+  s.style.top=Math.random()*100+'vh';
+  s.style.animationDuration=(2+Math.random()*4)+'s';
+  $('stars').appendChild(s);
+}
+
+/* Hearts cayendo */
+const svg=`<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/></svg>`;
+function dropHeart(){
+  const h=document.createElement('div');
+  h.className='heart';
+  const size=20+Math.random()*40;
+  h.style.width=h.style.height=size+'px';
+  h.style.left=Math.random()*100+'vw';
+  h.innerHTML=svg;
+  $('hearts').appendChild(h);
+  setTimeout(()=>h.remove(),9000);
+}
+setInterval(dropHeart,250);
+
+/* Fireworks → corazón siempre */
+const colors=['#ff00ff','#00ffff','#ffffff','#0088ff','#ffff00','#ff3377','#22ffcc','#ff9900'];
+function launch(){
+  const x=10+Math.random()*80,h=40+Math.random()*30;
+  const trail=document.createElement('div');
+  trail.className='firework-trail';
+  trail.style.left=x+'%';trail.style.setProperty('--h',h+'vh');
+  $('fireworks').appendChild(trail);
+  setTimeout(()=>{trail.remove();explode(x,100-h);},1000);
+  setTimeout(launch,500+Math.random()*1500);
+}
+function explode(x,tvh){
+  const c=colors[Math.floor(Math.random()*colors.length)];
+  const f=document.createElement('div');
+  f.className='firework';f.style.left=x+'%';f.style.top=tvh+'vh';
+  $('fireworks').appendChild(f);
+  const size=80+Math.random()*80;
+  for(let d=0;d<360;d+=4){
+    const a=d*Math.PI/180,hx=16*Math.sin(a)**3,hy=13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a);
+    const p=document.createElement('div');
+    p.className='firework-particle';
+    p.style.setProperty('--tx',hx*(size/30)+'px');
+    p.style.setProperty('--ty',-hy*(size/30)+'px');
+    p.style.background=c;p.style.boxShadow=`0 0 6px ${c},0 0 12px ${c}`;
+    p.style.animationDuration=(1+Math.random()*.4)+'s';
+    f.appendChild(p);
+  }
+  setTimeout(()=>f.remove(),1800);
+}
+setTimeout(launch,1000);
+
+/* Hearts que pulsan random */
+function pulseHeart(){
+  const ph=document.createElement('div');
+  ph.className='heart';
+  const size=60+Math.random()*80;
+  ph.style.width=ph.style.height=size+'px';
+  ph.style.left=Math.random()*100+'vw';
+  ph.style.top=Math.random()*100+'vh';
+  ph.style.animation='pulse 6s ease-in-out infinite,color-transition 6s linear infinite';
+  ph.innerHTML=svg;
+  $('hearts').appendChild(ph);
+  setTimeout(()=>ph.remove(),12000);
+  setTimeout(pulseHeart,3000+Math.random()*4000);
+}
+pulseHeart();
+
+/* Texto + chispas */
+const msgs=["Belated Happy Birthday!","You’re still special 💖","Sorry I’m late 😅","Wishing you love 🥰","Happy vibes only 🎉"];
+function spawnText(x,y){
+  const t=document.createElement('div');
+  t.className='floating-text';t.textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  document.body.appendChild(t);
+  const {width:w,height:h}=t.getBoundingClientRect();
+  t.style.left=x-w/2+'px';t.style.top=y-h/2+'px';
+  sparkle(x,y,w,h);
+  setTimeout(()=>t.remove(),2000);
+}
+function sparkle(cx,cy,w,h){
+  for(let i=0;i<30;i++){
+    const s=document.createElement('div');s.className='spark';
+    const px=cx-w/2+Math.random()*w,py=cy-h/2+Math.random()*h;
+    const dx=Math.random()*140-70,dy=Math.random()*100-50;
+    s.style.left=px+'px';s.style.top=py+'px';
+    s.style.setProperty('--sx',dx+'px');s.style.setProperty('--sy',dy+'px');
+    const col=colors[i%colors.length];
+    s.style.background=col;s.style.boxShadow=`0 0 6px ${col}`;
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1000);
+  }
+}
+document.body.addEventListener('click',e=>spawnText(e.clientX,e.clientY));
+document.body.addEventListener('touchstart',e=>{const t=e.touches[0];spawnText(t.clientX,t.clientY);});
+</script>
+</body>
+</html>
