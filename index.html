@@ -12,6 +12,7 @@
 <link rel="icon" href="favicon.png" />
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Belated Birthday</title>
+
 <style>
 /* --- Layout --- */
 html,body{margin:0;padding:0;width:100vw;height:100vh;background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif}
@@ -64,15 +65,10 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background:#000;overflow:h
 .glow{position:absolute;inset:0;background:radial-gradient(circle at center,rgba(50,0,80,.2),rgba(0,0,0,0));z-index:0}
 
 /* --- Floating text + sparks --- */
-.floating-text {
-  position: absolute;
-  font-weight: bold;
-  font-size: 25px; /* ← Aquí ajustas el tamaño */
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 1000;
-  animation: float-text 2s ease-out forwards, color-cycle 2s linear infinite;
-  text-shadow: 0 0 6px #ff69b4, 0 0 12px #00ffff;
+.floating-text{
+  position:absolute;font-weight:bold;font-size:25px;white-space:nowrap;pointer-events:none;z-index:1000;
+  animation:float-text 2s ease-out forwards,color-cycle 2s linear infinite;
+  text-shadow:0 0 6px #ff69b4,0 0 12px #00ffff;
 }
 @keyframes float-text{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
 @keyframes color-cycle{
